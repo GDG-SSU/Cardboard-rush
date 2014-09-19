@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cardboard Example</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        margin: 0px;
+        overflow: hidden;
+      }
+      #example {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+  <div id="example"></div>
+
+  <script src="js/three.min.js"></script>
+  <script src="js/StereoEffect.js"></script>
+  <script src="js/DeviceOrientationControls.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src="js/KeyboardState.js"></script>
+  <script src="js/objects/Sky.js"></script>
+
+  <script>
+    var camera, scene, renderer;
+    var effect, controls;
+    var element, container;
+     var keyboard;
+
+    var clock = new THREE.Clock();
+
+    init();
+    animate();
+
+    function init() {
+      	//초기화 : Scene
+  		scene = new THREE.Scene();
+  		scene.fog = new THREE.FogExp2( 0xeaeaea, 0.0006);
+
+  		//초기화 : Renderer
+  		renderer = new THREE.WebGLRenderer({ antialias: true });
+   		renderer.setClearColor( scene.fog.color, 1 );
+   		
+  		//초기화 : Camera
+  		camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
+  		camera.position.set(0, 6, 0);
+  		scene.add(camera);	
+
+  		//초기화 : Streo Effect
+   		effect = new THREE.StereoEffect(renderer);
+      effect.separation = 0.2;
+      effect.targetDistance = 50;
+      effect.setSize( window.innerWidth, window.innerHeight );
+
+  		//바인딩 : DomElement에 render을 부착
+   		element = renderer.domElement;
+  		container = document.getElementById('example');
+  		container.appendChild(element);
+
+      //추가 : 자이로스코프 Control
+      var hasOrientation = function(evt) {
+                if (!evt.alpha) {
+                    return;
+                }
+                window.removeEventListener('deviceorientation', hasOrientation, false);
+                controls = new THREE.DeviceOrientationControls( camera );
+                controls.connect();
+                camera.rotation.y = Math.PI;
+            };
+      window.addEventListener('deviceorientation', hasOrientation, false);
+
+  		//추가 : Resize 이벤트
+  		window.addEventListener('resize', resize, false);
+  		setTimeout(resize, 1);
+
+  		//추가 : 오브젝트 추가
+  		addObjects();
+
+      keyboard = new THREEx.KeyboardState();
+      
+    }
+
+    function addObjects()
+    {
+      //추가 : Ambient Light
+      var amb_light = new THREE.AmbientLight( 0x222222 );
+      scene.add( amb_light );
+
+      //추가 : Sky
+      var geometry = new THREE.Sky();
+      var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+      var mesh = new THREE.Mesh( geometry, material );
+      scene.add( mesh );
+
+      //추가 : 기본 지형
+      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(100, 1000), new THREE.MeshBasicMaterial({color: 0xffffff}));
+      mesh.rotation.x = -Math.PI / 2;
+      scene.add(mesh);
+
+      //추가 : 큐브
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(10,38,10), new THREE.MeshBasicMaterial({color: 0xff0000}));
+      mesh.position.y = 19;
+      mesh.position.z = 100;
+      scene.add(mesh);
+    }
+
+    function resize() {
+      var width = container.offsetWidth;
+      var height = container.offsetHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(width, height);
+      effect.setSize(width, height);
+    }
+
+    function update(dt) {
+  		//resize();
+
+  		//camera.position.y += 0.5;
+  		//camera.position.x += 0.5;
+  		camera.position.z += 0.5;
+
+  		camera.updateProjectionMatrix();
+
+  		//controls.update(dt);
+
+      if ( controls !== undefined ) {
+        controls.update();
+      }
+
+      if(keyboard.pressed("left") == true)
+      {
+        camera.position.x -= 0.5;
+      }else if(keyboard.pressed("right") == true){
+        camera.position.x += 0.5;
+      }
+    }
+
+    function render(dt) {
+      effect.render(scene, camera);
+    }
+
+    function animate(t) {
+      requestAnimationFrame(animate);
+
+      update(clock.getDelta());
+      render(clock.getDelta());
+    }
+
+    function fullscreen() {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      }
+    }
+  </script>
+  </body>
+</html>

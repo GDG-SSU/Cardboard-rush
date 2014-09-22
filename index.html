@@ -51,6 +51,7 @@
   		//초기화 : Camera
   		camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
   		camera.position.set(0, 6, 0);
+      camera.rotation.y = Math.PI;
   		scene.add(camera);	
 
   		//초기화 : Streo Effect
@@ -126,8 +127,8 @@
   		//resize();
 
   		//camera.position.y += 0.5;
-  		//camera.position.x += 0.5;
-  		camera.position.z += 0.5;
+  		camera.position.x -= Math.sin(camera.rotation.y);
+  		camera.position.z -= Math.cos(camera.rotation.y);
 
   		camera.updateProjectionMatrix();
 

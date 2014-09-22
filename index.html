@@ -32,9 +32,10 @@
     var camera, scene, renderer;
     var effect, controls;
     var element, container;
-     var keyboard;
+    var keyboard;
 
     var clock = new THREE.Clock();
+    var speed = 3;
 
     init();
     animate();
@@ -42,7 +43,7 @@
     function init() {
       	//초기화 : Scene
   		scene = new THREE.Scene();
-  		scene.fog = new THREE.FogExp2( 0xeaeaea, 0.0006);
+  		scene.fog = new THREE.FogExp2( 0xeaeaea, 0.0045);
 
   		//초기화 : Renderer
   		renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -106,10 +107,13 @@
       scene.add(mesh);
 
       //추가 : 큐브
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(10,38,10), new THREE.MeshBasicMaterial({color: 0xff0000}));
-      mesh.position.y = 19;
-      mesh.position.z = 100;
-      scene.add(mesh);
+      for(var i = 0; i < 100; i++){
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(10,38,10), new THREE.MeshBasicMaterial({color: 0xff0000}));
+        mesh.position.x = Math.random() * 100 - 50;
+        mesh.position.y = 19;
+        mesh.position.z = 100 + i * 30 + Math.random() * 50 - 25;
+        scene.add(mesh);
+      }
     }
 
     function resize() {
@@ -127,8 +131,8 @@
   		//resize();
 
   		//camera.position.y += 0.5;
-  		camera.position.x -= Math.sin(camera.rotation.y);
-  		camera.position.z -= Math.cos(camera.rotation.y);
+  		camera.position.x -= Math.sin(camera.rotation.y) * speed;
+  		camera.position.z -= Math.cos(camera.rotation.y) * speed;
 
   		camera.updateProjectionMatrix();
 
